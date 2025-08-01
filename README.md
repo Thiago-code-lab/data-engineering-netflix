@@ -5,7 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Status](https://img.shields.io/badge/Status-Produção-green.svg)](#)
 
-> **Pipeline completo de ETL (Extract, Transform, Load) para análise do catálogo Netflix, desenvolvido com Python e PostgreSQL, demonstrando práticas avançadas de engenharia de dados.**
+> **Pipeline completo de ETL (Extract, Transform, Load) para análise do catálogo Netflix, desenvolvido com Python e PostgreSQL, com uso de práticas de engenharia de dados.**
 
 ---
 
@@ -472,21 +472,15 @@ Contribuições são muito bem-vindas! Este projeto segue as melhores práticas 
 ## 📞 Contato e Suporte
 
 ### **👨‍💻 Desenvolvedor**
-- **Nome**: [Seu Nome]
-- **LinkedIn**: [Seu LinkedIn]
-- **GitHub**: [Seu GitHub]
-- **Email**: [seu.email@exemplo.com]
+- **Nome**: Thiago Cardoso Davi
+- **LinkedIn**: www.linkedin.com/in/analyticsthiagocardoso
+- **GitHub**: https://github.com/Thiago-code-lab
+- **Email**: analyticsdev.thiago@gmail.com
 
 ### **🆘 Suporte**
-- **Issues**: [GitHub Issues](https://github.com/seu-usuario/netflix-data-pipeline/issues)
-- **Discussões**: [GitHub Discussions](https://github.com/seu-usuario/netflix-data-pipeline/discussions)
-- **Wiki**: [Documentação Completa](https://github.com/seu-usuario/netflix-data-pipeline/wiki)
-
-### **📚 Recursos Adicionais**
-- [📖 Documentação Técnica Completa](docs/)
-- [🎥 Vídeos Tutoriais](docs/videos/)
-- [📊 Exemplos de Análises](examples/)
-- [🔧 Guias de Configuração](docs/setup/)
+- **Issues**: [GitHub Issues](https://github.com/Thiago-code-lab/data-engineering-netflix/issues)
+- **Discussões**: [GitHub Discussions](https://github.com/Thiago-code-lab/data-engineering-netflix/discussions)
+- **Wiki**: [Documentação Completa](https://github.com/Thiago-code-lab/data-engineering-netflix/wiki)
 
 ---
 
@@ -525,7 +519,6 @@ SOFTWARE.
 - **Netflix** - Pela disponibilização pública do dataset
 - **Comunidade Python** - Pelas excelentes bibliotecas open source
 - **PostgreSQL Team** - Pelo banco de dados robusto e confiável
-- **Contribuidores** - Por todas as melhorias e sugestões
 
 ---
 
