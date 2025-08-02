@@ -45,7 +45,7 @@ Este projeto implementa um **pipeline de engenharia de dados profissional** para
 
 ---
 
-## 🏗️ Arquitetura
+## 🏗️ Arquitetura do Pipeline
 
 ```mermaid
 flowchart LR
@@ -55,12 +55,12 @@ flowchart LR
     D --> E[📈 Visualização]
     E --> F[📋 Relatórios]
     
-    style A fill:#ff6b6b
-    style B fill:#4ecdc4
-    style C fill:#45b7d1
-    style D fill:#96ceb4
-    style E fill:#feca57
-    style F fill:#ff9ff3
+    style A fill:#ff6b6b,stroke:#333,color:#000000
+    style B fill:#4ecdc4,stroke:#333,color:#000000
+    style C fill:#45b7d1,stroke:#333,color:#000000
+    style D fill:#96ceb4,stroke:#333,color:#000000
+    style E fill:#feca57,stroke:#333,color:#000000
+    style F fill:#ff9ff3,stroke:#333,color:#000000
 ```
 
 ### 🔧 Componentes Principais
