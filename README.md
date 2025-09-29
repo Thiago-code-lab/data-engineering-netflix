@@ -434,7 +434,7 @@ git push origin feature/nova-funcionalidade
 [![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Thiago-code-lab)
 [![Email](https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:analyticsdev.thiago@gmail.com)
 
-**📧 analyticsdev.thiago@gmail.com** | **🌐 Portfolio: [GitHub]([https://github.com/Thiago-code-lab](https://thiago-code-lab.github.io/))**
+**📧 analyticsdev.thiago@gmail.com** | **🌐 Portfolio: [GitHub](https://thiago-code-lab.github.io/))**
 
 </div>
 
