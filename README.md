@@ -192,16 +192,16 @@ python demo_pipeline.py
 
 <div align="center">
 
-**🎭 Análise de Tipos de Conteúdo**
+**🌍 Análise Geográfica**
 <img width="800" alt="Content Analysis" src="https://github.com/user-attachments/assets/bb951f9e-d891-4c42-a623-48a729dfd5d3" />
 
-**⏰ Análise Temporal**
+**🎬 Análise de Gêneros**
 <img width="800" alt="Temporal Analysis" src="https://github.com/user-attachments/assets/ab6cee22-8191-45e3-bac6-a588533dba65" />
 
-**🌍 Análise Geográfica**
+**🎭 Análise de Conteúdo**
 <img width="800" alt="Geographic Analysis" src="https://github.com/user-attachments/assets/6defdc14-3922-4304-a1a8-4ad1ea259e92" />
 
-**🎪 Análise de Gêneros**
+**⏲️ Análise Temporal**
 <img width="800" alt="Genre Analysis" src="https://github.com/user-attachments/assets/6ced590d-d6df-47c0-8870-2bef7c9fda75" />
 
 </div>
