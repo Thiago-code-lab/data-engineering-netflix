@@ -1,6 +1,10 @@
 # 🎬 Netflix Data Engineering Pipeline
 
 <div align="center">
+  <img width="632" height="395" alt="Netflix Data Pipeline" src="https://github.com/user-attachments/assets/a50d5bdc-1c58-4d4e-9b3b-5891b38411e4" />
+<br><br>
+
+<div align="center">
 
 [![Python](https://img.shields.io/badge/Python-3.8+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/downloads/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-13+-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
