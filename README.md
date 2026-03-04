@@ -27,7 +27,7 @@ Este repositório já inclui uma landing page em `index.html` e workflow de depl
 
 ### ✅ Como ativar
 
-1. Faça push para a branch `main`.
+1. Faça push para a branch principal (`main` ou `master`).
 2. No GitHub, acesse **Settings → Pages**.
 3. Em **Build and deployment**, selecione **Source: GitHub Actions**.
 4. Aguarde a execução do workflow **Deploy GitHub Pages** na aba **Actions**.
