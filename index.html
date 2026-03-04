@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Netflix Data Pipeline · Thiago Cardoso Davi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --red: #E50914;
+    --red-dim: #8B0000;
+    --black: #0a0a0a;
+    --surface: #111111;
+    --surface2: #1a1a1a;
+    --border: rgba(229,9,20,0.18);
+    --text: #e8e8e8;
+    --text-muted: #888;
+    --mono: 'DM Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+    --display: 'Bebas Neue', sans-serif;
+    --glow: 0 0 40px rgba(229,9,20,0.25);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--text);
+    font-family: var(--sans);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 9999; opacity: .55;
+  }
+
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.08) 2px, rgba(0,0,0,.08) 4px);
+    pointer-events: none; z-index: 9998;
+  }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.2rem 3rem;
+    background: linear-gradient(180deg, rgba(10,10,10,.97) 0%, transparent 100%);
+    backdrop-filter: blur(6px);
+  }
+  .nav-logo {
+    font-family: var(--display);
+    font-size: 1.4rem;
+    letter-spacing: 3px;
+    color: var(--red);
+    text-decoration: none;
+  }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a {
+    font-family: var(--mono);
+    font-size: .75rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color .2s;
+  }
+  .nav-links a:hover { color: var(--red); }
+
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    padding: 6rem 3rem 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 60% at 70% 50%, rgba(229,9,20,.1) 0%, transparent 65%),
+      radial-gradient(ellipse 40% 80% at 100% 0%, rgba(229,9,20,.06) 0%, transparent 60%),
+      linear-gradient(135deg, #0a0a0a 0%, #0f0f0f 100%);
+  }
+
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(229,9,20,.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(229,9,20,.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: gridPan 30s linear infinite;
+  }
+  @keyframes gridPan {
+    0%   { transform: translate(0,0); }
+    100% { transform: translate(60px, 60px); }
+  }
+
+  .hero-content { position: relative; z-index: 2; }
+
+  .hero-eyebrow {
+    font-family: var(--mono);
+    font-size: .7rem;
+    letter-spacing: 4px;
+    color: var(--red);
+    text-transform: uppercase;
+    margin-bottom: 1.2rem;
+    display: flex; align-items: center; gap: .8rem;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    display: block; width: 32px; height: 1px;
+    background: var(--red);
+  }
+
+  .hero-title {
+    font-family: var(--display);
+    font-size: clamp(4rem, 8vw, 7rem);
+    line-height: .92;
+    letter-spacing: 2px;
+    color: #fff;
+    margin-bottom: 1.5rem;
+  }
+  .hero-title span {
+    color: var(--red);
+    display: block;
+  }
+
+  .hero-desc {
+    font-size: 1rem;
+    color: var(--text-muted);
+    max-width: 460px;
+    margin-bottom: 2.5rem;
+    line-height: 1.8;
+    font-weight: 300;
+  }
+
+  .hero-ctas { display: flex; gap: 1rem; flex-wrap: wrap; }
+
+  .btn {
+    font-family: var(--mono);
+    font-size: .75rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: .85rem 2rem;
+    border-radius: 2px;
+    text-decoration: none;
+    display: inline-flex; align-items: center; gap: .6rem;
+    transition: all .25s;
+    cursor: pointer;
+    border: none;
+  }
+  .btn-primary {
+    background: var(--red);
+    color: #fff;
+  }
+  .btn-primary:hover {
+    background: #ff0f1e;
+    box-shadow: 0 0 30px rgba(229,9,20,.5);
+    transform: translateY(-2px);
+  }
+  .btn-outline {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid rgba(255,255,255,.2);
+  }
+  .btn-outline:hover {
+    border-color: var(--red);
+    color: var(--red);
+    transform: translateY(-2px);
+  }
+
+  .hero-panel {
+    position: relative; z-index: 2;
+    display: flex; flex-direction: column; gap: 1rem;
+    justify-self: end;
+    width: 100%; max-width: 420px;
+  }
+
+  .panel-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.4rem 1.8rem;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp .6s ease both;
+  }
+  .panel-card::before {
+    content: '';
+    position: absolute; left: 0; top: 0; bottom: 0;
+    width: 3px; background: var(--red);
+  }
+  .panel-card:nth-child(1) { animation-delay: .1s; }
+  .panel-card:nth-child(2) { animation-delay: .2s; }
+  .panel-card:nth-child(3) { animation-delay: .3s; }
+  .panel-card:nth-child(4) { animation-delay: .4s; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .panel-label {
+    font-family: var(--mono);
+    font-size: .65rem;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: .3rem;
+  }
+  .panel-value {
+    font-family: var(--display);
+    font-size: 2.4rem;
+    color: #fff;
+    letter-spacing: 2px;
+    line-height: 1;
+  }
+  .panel-value .unit {
+    font-family: var(--mono);
+    font-size: .8rem;
+    color: var(--red);
+    margin-left: .4rem;
+    letter-spacing: 1px;
+  }
+  .panel-sub {
+    font-size: .8rem;
+    color: var(--text-muted);
+    margin-top: .3rem;
+  }
+
+  .kpi-row {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: .6rem;
+  }
+
+  section { padding: 6rem 3rem; }
+  .section-label {
+    font-family: var(--mono);
+    font-size: .7rem;
+    letter-spacing: 4px;
+    color: var(--red);
+    text-transform: uppercase;
+    margin-bottom: .8rem;
+    display: flex; align-items: center; gap: .8rem;
+  }
+  .section-label::before {
+    content: '';
+    display: block; width: 24px; height: 1px;
+    background: var(--red);
+  }
+  .section-title {
+    font-family: var(--display);
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    letter-spacing: 2px;
+    color: #fff;
+    margin-bottom: 1rem;
+  }
+  .section-desc {
+    font-size: .95rem;
+    color: var(--text-muted);
+    max-width: 540px;
+    line-height: 1.8;
+    font-weight: 300;
+  }
+
+  .pipeline-section { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+
+  .pipeline-flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-top: 4rem;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+  }
+  .pipe-step {
+    flex: 1;
+    min-width: 140px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .8rem;
+    padding: 2rem 1rem;
+    text-align: center;
+    position: relative;
+  }
+  .pipe-step::after {
+    content: '→';
+    position: absolute;
+    right: -16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--red);
+    font-size: 1.4rem;
+    font-weight: 300;
+  }
+  .pipe-step:last-child::after { display: none; }
+
+  .pipe-icon {
+    width: 64px; height: 64px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.6rem;
+    transition: all .3s;
+    position: relative;
+  }
+  .pipe-step:hover .pipe-icon {
+    border-color: var(--red);
+    box-shadow: var(--glow);
+    transform: scale(1.1);
+  }
+  .pipe-num {
+    position: absolute;
+    top: -6px; right: -6px;
+    width: 20px; height: 20px;
+    background: var(--red);
+    border-radius: 50%;
+    font-family: var(--mono);
+    font-size: .6rem;
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .pipe-name {
+    font-family: var(--display);
+    font-size: 1rem;
+    letter-spacing: 2px;
+    color: #fff;
+  }
+  .pipe-desc {
+    font-family: var(--mono);
+    font-size: .65rem;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+  }
+
+  .stack-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1px;
+    margin-top: 4rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .stack-item {
+    background: var(--surface);
+    padding: 2rem 1.5rem;
+    display: flex; flex-direction: column; align-items: center; gap: .8rem;
+    text-align: center;
+    border: 1px solid transparent;
+    transition: all .25s;
+    cursor: default;
+  }
+  .stack-item:hover {
+    background: var(--surface2);
+    border-color: var(--border);
+    transform: translateY(-4px);
+    z-index: 2;
+  }
+  .stack-badge {
+    width: 48px; height: 48px;
+    background: var(--surface2);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem;
+  }
+  .stack-name {
+    font-family: var(--mono);
+    font-size: .8rem;
+    color: #fff;
+    letter-spacing: 1px;
+  }
+  .stack-cat {
+    font-size: .7rem;
+    color: var(--red);
+    font-family: var(--mono);
+    letter-spacing: 1px;
+  }
+
+  .insights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 3rem;
+  }
+  .insight-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2rem;
+    transition: all .3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .insight-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--red) 0%, transparent 100%);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform .3s;
+  }
+  .insight-card:hover { transform: translateY(-4px); border-color: rgba(229,9,20,.35); }
+  .insight-card:hover::after { transform: scaleX(1); }
+  .insight-metric {
+    font-family: var(--display);
+    font-size: 3rem;
+    color: var(--red);
+    letter-spacing: 2px;
+    line-height: 1;
+  }
+  .insight-title {
+    font-family: var(--mono);
+    font-size: .8rem;
+    color: #fff;
+    letter-spacing: 1px;
+    margin: .5rem 0 .4rem;
+    text-transform: uppercase;
+  }
+  .insight-desc {
+    font-size: .85rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  .code-section { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+
+  .code-tabs {
+    display: flex; gap: 0;
+    border-bottom: 1px solid var(--border);
+    margin-top: 3rem;
+  }
+  .tab-btn {
+    font-family: var(--mono);
+    font-size: .7rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: .8rem 1.5rem;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all .2s;
+  }
+  .tab-btn.active {
+    color: var(--red);
+    border-bottom-color: var(--red);
+  }
+  .tab-btn:hover { color: var(--text); }
+
+  .code-panel { display: none; }
+  .code-panel.active { display: block; }
+
+  pre {
+    background: #0d0d0d;
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    padding: 2rem;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: .8rem;
+    line-height: 1.8;
+    color: #ccc;
+  }
+  .kw { color: #ff79c6; }
+  .fn { color: #50fa7b; }
+  .st { color: #f1fa8c; }
+  .cm { color: #6272a4; font-style: italic; }
+  .num { color: #bd93f9; }
+  .op { color: var(--red); }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    margin-top: 4rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .feature-item {
+    padding: 2.5rem;
+    background: var(--surface);
+    transition: background .2s;
+  }
+  .feature-item:hover { background: var(--surface2); }
+  .feature-icon { font-size: 1.8rem; margin-bottom: 1rem; display: block; }
+  .feature-name {
+    font-family: var(--display);
+    font-size: 1.3rem;
+    letter-spacing: 2px;
+    color: #fff;
+    margin-bottom: .5rem;
+  }
+  .feature-desc {
+    font-size: .85rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+    font-weight: 300;
+  }
+  .feature-tags {
+    display: flex; flex-wrap: wrap; gap: .4rem;
+    margin-top: 1rem;
+  }
+  .tag {
+    font-family: var(--mono);
+    font-size: .6rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: .25rem .6rem;
+    background: rgba(229,9,20,.1);
+    border: 1px solid rgba(229,9,20,.2);
+    color: var(--red);
+    border-radius: 2px;
+  }
+
+  .cta-section {
+    text-align: center;
+    padding: 8rem 3rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .cta-section::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 70% 50% at 50% 50%, rgba(229,9,20,.08) 0%, transparent 70%);
+  }
+  .cta-title {
+    font-family: var(--display);
+    font-size: clamp(3rem, 7vw, 6rem);
+    letter-spacing: 3px;
+    color: #fff;
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+  .cta-title span { color: var(--red); }
+  .cta-desc {
+    font-size: 1rem;
+    color: var(--text-muted);
+    max-width: 480px;
+    margin: 0 auto 2.5rem;
+    line-height: 1.8;
+    font-weight: 300;
+    position: relative;
+  }
+  .cta-actions {
+    display: flex; gap: 1rem; justify-content: center;
+    flex-wrap: wrap; position: relative;
+  }
+
+  footer {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+  .footer-brand {
+    font-family: var(--display);
+    font-size: 1.2rem;
+    letter-spacing: 3px;
+    color: var(--red);
+  }
+  .footer-links { display: flex; gap: 2rem; }
+  .footer-links a {
+    font-family: var(--mono);
+    font-size: .7rem;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color .2s;
+  }
+  .footer-links a:hover { color: var(--red); }
+  .footer-copy {
+    font-family: var(--mono);
+    font-size: .65rem;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity .7s ease, transform .7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (max-width: 900px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+    .hero { grid-template-columns: 1fr; padding: 6rem 1.5rem 4rem; gap: 3rem; }
+    .hero-panel { max-width: 100%; justify-self: start; }
+    section { padding: 4rem 1.5rem; }
+    .features-grid { grid-template-columns: 1fr; }
+    footer { flex-direction: column; text-align: center; }
+    .footer-links { flex-wrap: wrap; justify-content: center; }
+  }
+
+  .data-bar {
+    width: 100%;
+    height: 3px;
+    background: var(--surface2);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: .6rem;
+  }
+  .data-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--red-dim), var(--red));
+    border-radius: 2px;
+    animation: barLoad 1.5s ease both;
+    transform-origin: left;
+  }
+  @keyframes barLoad {
+    from { transform: scaleX(0); }
+    to   { transform: scaleX(1); }
+  }
+</style>
+</head>
+
+<body>
+
+<nav>
+  <a href="#" class="nav-logo">NDP</a>
+  <ul class="nav-links">
+    <li><a href="#pipeline">Pipeline</a></li>
+    <li><a href="#stack">Stack</a></li>
+    <li><a href="#insights">Insights</a></li>
+    <li><a href="#code">Código</a></li>
+    <li><a href="https://github.com/Thiago-code-lab/netflix-data-pipeline" target="_blank" rel="noopener noreferrer">GitHub ↗</a></li>
+  </ul>
+</nav>
+
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+
+  <div class="hero-content">
+    <p class="hero-eyebrow">Data Engineering · ETL Pipeline</p>
+    <h1 class="hero-title">
+      Netflix<br/>
+      <span>Data</span>
+      Pipeline
+    </h1>
+    <p class="hero-desc">
+      Pipeline ETL de classe empresarial para processamento e análise profunda do catálogo Netflix.
+      Arquitetura modular, escalável e pronta para produção.
+    </p>
+    <div class="hero-ctas">
+      <a href="https://github.com/Thiago-code-lab/netflix-data-pipeline" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+        ⬡ Ver no GitHub
+      </a>
+      <a href="#pipeline" class="btn btn-outline">
+        → Explorar Pipeline
+      </a>
+    </div>
+  </div>
+
+  <div class="hero-panel">
+    <div class="panel-card">
+      <p class="panel-label">Títulos Processados</p>
+      <p class="panel-value">8,807<span class="unit">títulos</span></p>
+      <div class="data-bar"><div class="data-bar-fill" style="animation-delay:.3s"></div></div>
+    </div>
+    <div class="kpi-row">
+      <div class="panel-card">
+        <p class="panel-label">Filmes</p>
+        <p class="panel-value" style="font-size:1.8rem">6,131</p>
+        <p class="panel-sub">69.6% do catálogo</p>
+      </div>
+      <div class="panel-card">
+        <p class="panel-label">Séries</p>
+        <p class="panel-value" style="font-size:1.8rem">2,676</p>
+        <p class="panel-sub">30.4% do catálogo</p>
+      </div>
+    </div>
+    <div class="kpi-row">
+      <div class="panel-card">
+        <p class="panel-label">Features</p>
+        <p class="panel-value" style="font-size:1.8rem">32</p>
+        <p class="panel-sub">engenheiradas</p>
+      </div>
+      <div class="panel-card">
+        <p class="panel-label">Países</p>
+        <p class="panel-value" style="font-size:1.8rem">123</p>
+        <p class="panel-sub">cobertura global</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pipeline" class="pipeline-section">
+  <div class="reveal">
+    <p class="section-label">Arquitetura</p>
+    <h2 class="section-title">Fluxo do Pipeline</h2>
+    <p class="section-desc">Cada etapa foi projetada para máxima resiliência, observabilidade e performance em ambiente de produção.</p>
+  </div>
+  <div class="pipeline-flow reveal">
+    <div class="pipe-step">
+      <div class="pipe-icon">📁<span class="pipe-num">1</span></div>
+      <p class="pipe-name">Extract</p>
+      <p class="pipe-desc">Leitura &amp; Validação</p>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-icon">🧹<span class="pipe-num">2</span></div>
+      <p class="pipe-name">Clean</p>
+      <p class="pipe-desc">Nulos &amp; Normalização</p>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-icon">⚙️<span class="pipe-num">3</span></div>
+      <p class="pipe-name">Transform</p>
+      <p class="pipe-desc">Feature Engineering</p>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-icon">💾<span class="pipe-num">4</span></div>
+      <p class="pipe-name">Load</p>
+      <p class="pipe-desc">PostgreSQL Bulk</p>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-icon">📊<span class="pipe-num">5</span></div>
+      <p class="pipe-name">Analyze</p>
+      <p class="pipe-desc">Dashboards &amp; KPIs</p>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-icon">📋<span class="pipe-num">6</span></div>
+      <p class="pipe-name">Report</p>
+      <p class="pipe-desc">Insights Auto</p>
+    </div>
+  </div>
+</section>
+
+<section id="stack">
+  <div class="reveal">
+    <p class="section-label">Tecnologias</p>
+    <h2 class="section-title">Stack Técnico</h2>
+    <p class="section-desc">Ferramentas de produção escolhidas pela robustez, escalabilidade e ecossistema maduro.</p>
+  </div>
+  <div class="stack-grid reveal">
+    <div class="stack-item"><div class="stack-badge">🐍</div><p class="stack-name">Python 3.8+</p><p class="stack-cat">Core</p></div>
+    <div class="stack-item"><div class="stack-badge">🐼</div><p class="stack-name">Pandas</p><p class="stack-cat">Processamento</p></div>
+    <div class="stack-item"><div class="stack-badge">🔢</div><p class="stack-name">NumPy</p><p class="stack-cat">Computação</p></div>
+    <div class="stack-item"><div class="stack-badge">🐘</div><p class="stack-name">PostgreSQL</p><p class="stack-cat">Database</p></div>
+    <div class="stack-item"><div class="stack-badge">🔗</div><p class="stack-name">SQLAlchemy</p><p class="stack-cat">ORM</p></div>
+    <div class="stack-item"><div class="stack-badge">📈</div><p class="stack-name">Plotly</p><p class="stack-cat">Visualização</p></div>
+    <div class="stack-item"><div class="stack-badge">🎨</div><p class="stack-name">Seaborn</p><p class="stack-cat">Visualização</p></div>
+    <div class="stack-item"><div class="stack-badge">🐳</div><p class="stack-name">Docker</p><p class="stack-cat">DevOps</p></div>
+    <div class="stack-item"><div class="stack-badge">📝</div><p class="stack-name">Loguru</p><p class="stack-cat">Observabilidade</p></div>
+  </div>
+</section>
+
+<section id="insights" style="background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="reveal">
+    <p class="section-label">Resultados</p>
+    <h2 class="section-title">Insights Principais</h2>
+    <p class="section-desc">Padrões descobertos durante a análise do catálogo Netflix de 8.807 títulos.</p>
+  </div>
+  <div class="insights-grid reveal">
+    <div class="insight-card">
+      <p class="insight-metric">36%</p>
+      <p class="insight-title">Dominância Americana</p>
+      <p class="insight-desc">EUA lidera com 36% do conteúdo total, sinalizando estratégia de mercado fortemente focada na produção doméstica.</p>
+    </div>
+    <div class="insight-card">
+      <p class="insight-metric">70%</p>
+      <p class="insight-title">Crescimento Pós-2015</p>
+      <p class="insight-desc">70% de todo o catálogo foi adicionado após 2015, revelando expansão acelerada no período de digitalização global.</p>
+    </div>
+    <div class="insight-card">
+      <p class="insight-metric">123</p>
+      <p class="insight-title">Países Representados</p>
+      <p class="insight-desc">Conteúdo proveniente de 123 países distintos demonstra o alcance verdadeiramente global da plataforma.</p>
+    </div>
+    <div class="insight-card">
+      <p class="insight-metric">69.6%</p>
+      <p class="insight-title">Preferência por Filmes</p>
+      <p class="insight-desc">Filmes dominam com 69.6% do catálogo, indicando o modelo de consumo preferido pelo público da plataforma.</p>
+    </div>
+    <div class="insight-card">
+      <p class="insight-metric">18%</p>
+      <p class="insight-title">Gênero Dominante: Drama</p>
+      <p class="insight-desc">Dramas representam 18% do catálogo, confirmando a preferência por narrativas profundas e emocionalmente ricas.</p>
+    </div>
+    <div class="insight-card">
+      <p class="insight-metric">42</p>
+      <p class="insight-title">Gêneros Únicos</p>
+      <p class="insight-desc">42 categorias de gênero distintas catalogadas, evidenciando a diversidade e amplitude da estratégia de conteúdo.</p>
+    </div>
+  </div>
+</section>
+
+<section id="code" class="code-section">
+  <div class="reveal">
+    <p class="section-label">Exemplos de Uso</p>
+    <h2 class="section-title">Código em Ação</h2>
+    <p class="section-desc">API limpa e expressiva. Do raw CSV a insights em poucas linhas.</p>
+  </div>
+  <div class="reveal">
+    <div class="code-tabs">
+      <button class="tab-btn active" onclick="showTab('python', this)">Python API</button>
+      <button class="tab-btn" onclick="showTab('sql', this)">SQL Queries</button>
+      <button class="tab-btn" onclick="showTab('setup', this)">Quick Setup</button>
+    </div>
+
+    <div id="tab-python" class="code-panel active">
+<pre><span class="cm"># Pipeline completo em Python</span>
+<span class="kw">from</span> src.extract <span class="kw">import</span> extract_netflix_data
+<span class="kw">from</span> src.transform <span class="kw">import</span> transform_netflix_data
+<span class="kw">from</span> src.load <span class="kw">import</span> load_to_postgres
+<span class="kw">from</span> src.visualizations <span class="kw">import</span> generate_all_visualizations
+
+<span class="kw">def</span> <span class="fn">run_analysis</span>():
+    <span class="cm"># ── Extract ──────────────────────────────────</span>
+    raw_data = <span class="fn">extract_netflix_data</span>()
+    <span class="fn">print</span>(<span class="st">f"✅ Extraídos {len(raw_data)} registros"</span>)
+
+    <span class="cm"># ── Transform ─────────────────────────────────</span>
+    clean_data = <span class="fn">transform_netflix_data</span>(raw_data)
+    <span class="fn">print</span>(<span class="st">f"⚙️  {clean_data.shape[1]} features engenheiradas"</span>)
+
+    <span class="cm"># ── Load ──────────────────────────────────────</span>
+    success = <span class="fn">load_to_postgres</span>(clean_data)
+    <span class="fn">print</span>(<span class="st">f"💾 {'✅ Sucesso' if success else '❌ Falha'}"</span>)
+
+    <span class="cm"># ── Visualize ─────────────────────────────────</span>
+    charts = <span class="fn">generate_all_visualizations</span>(clean_data)
+    <span class="fn">print</span>(<span class="st">f"📊 {len(charts)} dashboards gerados"</span>)
+
+<span class="fn">run_analysis</span>()
+</pre>
+    </div>
+
+    <div id="tab-sql" class="code-panel">
+<pre><span class="cm">-- 🏆 Top países por diversidade de gêneros</span>
+<span class="kw">WITH</span> country_genres <span class="kw">AS</span> (
+    <span class="kw">SELECT</span>
+        primary_country,
+        <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> primary_genre)  <span class="kw">AS</span> unique_genres,
+        <span class="fn">COUNT</span>(*)                         <span class="kw">AS</span> total_titles
+    <span class="kw">FROM</span>  netflix_titles
+    <span class="kw">WHERE</span> primary_country <span class="op">IS NOT NULL</span>
+      <span class="kw">AND</span> primary_genre   <span class="op">IS NOT NULL</span>
+    <span class="kw">GROUP BY</span> primary_country
+)
+<span class="kw">SELECT</span>
+    primary_country,
+    unique_genres,
+    total_titles,
+    <span class="fn">ROUND</span>(unique_genres::<span class="kw">numeric</span> / total_titles * <span class="num">100</span>, <span class="num">2</span>) <span class="kw">AS</span> diversity_ratio
+<span class="kw">FROM</span>  country_genres
+<span class="kw">WHERE</span> total_titles >= <span class="num">50</span>
+<span class="kw">ORDER BY</span> diversity_ratio <span class="kw">DESC</span>
+<span class="kw">LIMIT</span> <span class="num">10</span>;
+</pre>
+    </div>
+
+    <div id="tab-setup" class="code-panel">
+<pre><span class="cm"># ── 1. Clone ──────────────────────────────────</span>
+git clone https://github.com/Thiago-code-lab/netflix-data-pipeline.git
+<span class="fn">cd</span> netflix-data-pipeline
+
+<span class="cm"># ── 2. Ambiente virtual ───────────────────────</span>
+python -m venv venv
+source venv/bin/activate   <span class="cm"># Linux/Mac</span>
+<span class="cm"># venv\Scripts\activate   # Windows</span>
+
+<span class="cm"># ── 3. Dependências ───────────────────────────</span>
+pip install -r requirements.txt
+
+<span class="cm"># ── 4. PostgreSQL via Docker ──────────────────</span>
+docker-compose up -d
+
+<span class="cm"># ── 5. Executar ───────────────────────────────</span>
+python src/pipeline.py
+
+<span class="cm"># ── Demo sem banco de dados ───────────────────</span>
+python demo_pipeline.py
+</pre>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="reveal">
+    <p class="section-label">Capacidades</p>
+    <h2 class="section-title">Funcionalidades Técnicas</h2>
+    <p class="section-desc">Cada módulo construído com foco em robustez, manutenibilidade e performance.</p>
+  </div>
+  <div class="features-grid reveal">
+    <div class="feature-item">
+      <span class="feature-icon">🔍</span>
+      <p class="feature-name">Extração Robusta</p>
+      <p class="feature-desc">Detecção automática de encoding (UTF-8, Latin-1, ISO-8859-1), validação de estrutura específica para dados Netflix e tratamento avançado de exceções com logging detalhado.</p>
+      <div class="feature-tags">
+        <span class="tag">UTF-8</span>
+        <span class="tag">Validação</span>
+        <span class="tag">Logging</span>
+      </div>
+    </div>
+    <div class="feature-item">
+      <span class="feature-icon">⚙️</span>
+      <p class="feature-name">Feature Engineering</p>
+      <p class="feature-desc">32 features derivadas de 12 originais. Análise temporal com décadas e sazonalidade, processamento geográfico e métricas contínuas de qualidade de dados.</p>
+      <div class="feature-tags">
+        <span class="tag">32 Features</span>
+        <span class="tag">Temporal</span>
+        <span class="tag">Geográfico</span>
+      </div>
+    </div>
+    <div class="feature-item">
+      <span class="feature-icon">💾</span>
+      <p class="feature-name">Carga Otimizada</p>
+      <p class="feature-desc">Bulk insert em lotes, connection pooling eficiente, verificação de integridade pós-carregamento e indexação automática para máxima performance de consulta.</p>
+      <div class="feature-tags">
+        <span class="tag">Bulk Insert</span>
+        <span class="tag">Pooling</span>
+        <span class="tag">Indexação</span>
+      </div>
+    </div>
+    <div class="feature-item">
+      <span class="feature-icon">📊</span>
+      <p class="feature-name">Dashboards Avançados</p>
+      <p class="feature-desc">4 dashboards completos com análises multidimensionais, gráficos interativos em Plotly, geração automática de relatórios e biblioteca SQL pré-otimizada.</p>
+      <div class="feature-tags">
+        <span class="tag">Plotly</span>
+        <span class="tag">4 Dashboards</span>
+        <span class="tag">Auto Reports</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <h2 class="cta-title reveal">Pronto para<br/><span>Explorar</span>?</h2>
+  <p class="cta-desc reveal">Acesse o repositório, clone o projeto e execute o pipeline completo em menos de 3 minutos.</p>
+  <div class="cta-actions reveal">
+    <a href="https://github.com/Thiago-code-lab/netflix-data-pipeline" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+      ⬡ Acessar Repositório
+    </a>
+    <a href="https://www.linkedin.com/in/analyticsthiagocardoso" target="_blank" rel="noopener noreferrer" class="btn btn-outline">
+      ↗ LinkedIn
+    </a>
+    <a href="mailto:analyticsdev.thiago@gmail.com" class="btn btn-outline">
+      ✉ Contato
+    </a>
+  </div>
+</section>
+
+<footer>
+  <span class="footer-brand">NDP</span>
+  <div class="footer-links">
+    <a href="https://github.com/Thiago-code-lab/netflix-data-pipeline" target="_blank" rel="noopener noreferrer">GitHub</a>
+    <a href="https://www.linkedin.com/in/analyticsthiagocardoso" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+    <a href="mailto:analyticsdev.thiago@gmail.com">Email</a>
+    <a href="https://github.com/Thiago-code-lab/netflix-data-pipeline/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a>
+  </div>
+  <p class="footer-copy">© 2026 Thiago Cardoso Davi · Netflix Data Pipeline</p>
+</footer>
+
+<script>
+  function showTab(id, buttonElement) {
+    document.querySelectorAll('.code-panel').forEach((panel) => panel.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach((button) => button.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    buttonElement.classList.add('active');
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.reveal').forEach((element) => observer.observe(element));
+</script>
+</body>
+</html>

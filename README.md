@@ -21,6 +21,23 @@
 
 </div>
 
+## 🌐 GitHub Pages
+
+Este repositório já inclui uma landing page em `index.html` e workflow de deploy automático em `.github/workflows/deploy-pages.yml`.
+
+### ✅ Como ativar
+
+1. Faça push para a branch `main`.
+2. No GitHub, acesse **Settings → Pages**.
+3. Em **Build and deployment**, selecione **Source: GitHub Actions**.
+4. Aguarde a execução do workflow **Deploy GitHub Pages** na aba **Actions**.
+
+Após concluir, o site ficará disponível em:
+
+`https://<seu-usuario>.github.io/<nome-do-repositorio>/`
+
+---
+
 ## 🎯 Visão Geral
 
 > **Pipeline de Engenharia de Dados de classe empresarial para processamento e análise do catálogo Netflix**
