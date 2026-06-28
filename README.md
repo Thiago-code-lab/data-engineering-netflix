@@ -11,6 +11,16 @@
 [![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
+<div align="center">
+
+<a href="https://www.cloudstudy.com.br/">
+  <img src="https://img.shields.io/badge/🌐_CloudStudy-cloudstudy.com.br-2563EB?style=for-the-badge" />
+</a>
+
+<a href="https://www.instagram.com/cloudstudy.ai/">
+  <img src="https://img.shields.io/badge/Instagram-@cloudstudy.ai-E4405F?style=for-the-badge&logo=instagram&logoColor=white" />
+</a>
+
 **🚀 Pipeline ETL completo para análise avançada do catálogo Netflix**
 
 *Demonstrando competências profissionais em Engenharia de Dados, Analytics e Arquitetura de Software*
